@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gift Finder - AI-Powered Recommendations</title>
+  <style id="dynamicStyles">
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --background-gradient: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-primary: #2d3748;
+      --text-secondary: #4a5568;
+      --text-muted: #718096;
+      --border-color: rgba(255, 255, 255, 0.2);
+      --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+      --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.1);
+      --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
+      --border-radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background-gradient);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      opacity: 1;
+      transform: none;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .input-section {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-medium);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .input-section:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .input-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .input-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 1rem;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--text-primary);
+      resize: vertical;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .input-textarea:focus {
+      border-color: #667eea;
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .input-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .action-button {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-light);
+      margin-top: 1rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .action-button:active {
+      transform: translateY(0);
+    }
+
+    .action-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .results-grid {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+
+    .result-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-medium);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .result-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-heavy);
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .result-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-gradient);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+    }
+
+    .result-content {
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .result-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .result-content::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 3px;
+    }
+
+    .result-content::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+
+    .theme-controls {
+      text-align: center;
+      margin-bottom: 2rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: var(--shadow-medium);
+      border: 1px solid var(--border-color);
+    }
+
+    .theme-button {
+      background: var(--secondary-gradient);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: var(--transition);
+      margin: 0.25rem;
+    }
+
+    .theme-button:hover {
+      transform: scale(1.05);
+    }
+
+    .error-state {
+      color: #e53e3e !important;
+      background: rgba(229, 62, 62, 0.1) !important;
+      border: 1px solid rgba(229, 62, 62, 0.2) !important;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 0 0.5rem;
+      }
+      
+      body {
+        padding: 1rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="theme-controls">
+      <button class="theme-button" onclick="setTheme('default')">🌅 Default</button>
+      <button class="theme-button" onclick="setTheme('ocean')">🌊 Ocean</button>
+      <button class="theme-button" onclick="setTheme('sunset')">🌅 Sunset</button>
+      <button class="theme-button" onclick="setTheme('forest')">🌲 Forest</button>
+      <button class="theme-button" onclick="setTheme('dark')">🌙 Dark</button>
+    </div>
+
+    <div class="header">
+      <h1 class="title">Gift Finder</h1>
+      <p class="subtitle">Discover perfect gifts through AI-powered insights. Enter what they love, and watch our advanced algorithms uncover hidden recommendations.</p>
+    </div>
+
+    <div class="input-section">
+      <label class="input-label" for="userInput">What do they love?</label>
+      <textarea 
+        id="userInput" 
+        class="input-textarea"
+        placeholder="e.g., hiking adventures, artisanal coffee, abstract art prints, vintage vinyl records, sustainable fashion..."
+      ></textarea>
+      <button id="goBtn" class="action-button">
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <span id="buttonText">✨ Find Perfect Gifts</span>
+      </button>
+    </div>
+
+    <div class="results-grid">
+      <div class="result-card" id="chatgptCard">
+        <h2 class="result-title">
+          <div class="result-icon">🧠</div>
+          AI Analysis Response
+        </h2>
+        <div class="result-content" id="chatgptRaw">Ready to analyze preferences...</div>
+      </div>
+
+      <div class="result-card" id="insightsUrlCard">
+        <h2 class="result-title">
+          <div class="result-icon">🔗</div>
+          Insights API Request
+        </h2>
+        <div class="result-content" id="insightsUrl">Waiting for analysis...</div>
+      </div>
+
+      <div class="result-card" id="insightsCard">
+        <h2 class="result-title">
+          <div class="result-icon">💎</div>
+          Gift Recommendations
+        </h2>
+        <div class="result-content" id="insightsResponse">Your personalized recommendations will appear here...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme system for dynamic styling
+    const themes = {
+      default: {
+        '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--secondary-gradient': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        '--accent-gradient': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        '--background-gradient': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+        '--card-bg': 'rgba(255, 255, 255, 0.95)',
+        '--text-primary': '#2d3748',
+        '--text-secondary': '#4a5568'
+      },
+      ocean: {
+        '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--secondary-gradient': 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+        '--accent-gradient': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+        '--background-gradient': 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+        '--card-bg': 'rgba(255, 255, 255, 0.9)',
+        '--text-primary': '#1a365d',
+        '--text-secondary': '#2c5282'
+      },
+      sunset: {
+        '--primary-gradient': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        '--secondary-gradient': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+        '--accent-gradient': 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+        '--background-gradient': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+        '--card-bg': 'rgba(255, 255, 255, 0.95)',
+        '--text-primary': '#744210',
+        '--text-secondary': '#975a16'
+      },
+      forest: {
+        '--primary-gradient': 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
+        '--secondary-gradient': 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%)',
+        '--accent-gradient': 'linear-gradient(135deg, #81c784 0%, #aed581 100%)',
+        '--background-gradient': 'linear-gradient(135deg, #c3e9d0 0%, #f7f8f8 100%)',
+        '--card-bg': 'rgba(255, 255, 255, 0.95)',
+        '--text-primary': '#1b4332',
+        '--text-secondary': '#2d5016'
+      },
+      dark: {
+        '--primary-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--secondary-gradient': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        '--accent-gradient': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        '--background-gradient': 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+        '--card-bg': 'rgba(45, 55, 72, 0.95)',
+        '--text-primary': '#f7fafc',
+        '--text-secondary': '#e2e8f0'
+      }
+    };
+
+    function setTheme(themeName) {
+      const theme = themes[themeName];
+      const root = document.documentElement;
+      
+      Object.entries(theme).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+      });
+      
+      // Add a subtle animation when changing themes
+      document.body.style.transition = 'all 0.5s ease';
+      setTimeout(() => {
+        document.body.style.transition = '';
+      }, 500);
+    }
+
+    // Enhanced functionality with animations
+    const API_BASE = 'https://geneoanalytics.com';
+    
+    function showLoading(isLoading) {
+      const button = document.getElementById('goBtn');
+      const spinner = document.getElementById('loadingSpinner');
+      const buttonText = document.getElementById('buttonText');
+      
+      if (isLoading) {
+        button.disabled = true;
+        spinner.style.display = 'inline-block';
+        buttonText.textContent = 'Analyzing...';
+      } else {
+        button.disabled = false;
+        spinner.style.display = 'none';
+        buttonText.textContent = '✨ Find Perfect Gifts';
+      }
+    }
+
+    function updateContent(elementId, content, isError = false) {
+      const element = document.getElementById(elementId);
+      element.textContent = content;
+      if (isError) {
+        element.className = 'result-content error-state';
+      } else {
+        element.className = 'result-content';
+      }
+    }
+
+    document.getElementById('goBtn').addEventListener('click', async () => {
+      const text = document.getElementById('userInput').value.trim();
+      if (!text) {
+        alert('Please describe what they like to get personalized recommendations! 🎁');
+        return;
+      }
+
+      showLoading(true);
+      
+      // Reset and show loading states
+      updateContent('chatgptRaw', '🔄 Analyzing preferences with AI...');
+      updateContent('insightsUrl', '⏳ Preparing insights request...');
+      updateContent('insightsResponse', '🎯 Generating recommendations...');
+
+      try {
+        // 1. Extract seed terms via ChatGPT proxy
+        const extractRes = await fetch(`${API_BASE}/api/extract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        const extractData = await extractRes.json();
+        updateContent('chatgptRaw', JSON.stringify(extractData, null, 2));
+
+        if (!extractRes.ok || extractData.error) {
+          updateContent('insightsUrl', `❌ Extraction error: ${extractData.error || extractRes.status}`, true);
+          return;
+        }
+
+        const { seed_terms } = extractData;
+        if (!seed_terms || seed_terms.length === 0) {
+          updateContent('insightsUrl', '⚠️ No seed terms extracted from your input', true);
+          return;
+        }
+
+        // 2. Build Insights API URL
+        const params = new URLSearchParams();
+        params.set('filter.type', 'urn:tag');
+        params.set('filter.tag.types', 'urn:tag:keyword:media');
+        params.set('filter.parents.types', 'urn:entity:movie, urn:entity:tv_show');
+        params.set('term', seed_terms.join(','));
+
+        const insightsPath = `/api/insights?${params.toString()}`;
+        updateContent('insightsUrl', `${API_BASE}${insightsPath}`);
+
+        // 3. Call Insights endpoint
+        updateContent('insightsResponse', '🔍 Fetching personalized recommendations...');
+
+        const insRes = await fetch(`${API_BASE}${insightsPath}`);
+        const insData = await insRes.json();
+
+        if (!insRes.ok) {
+          updateContent('insightsResponse', `❌ Error ${insRes.status}: ${JSON.stringify(insData, null, 2)}`, true);
+          return;
+        }
+
+        updateContent('insightsResponse', JSON.stringify(insData, null, 2));
+
+      } catch (error) {
+        console.error('Error:', error);
+        updateContent('insightsResponse', `🚫 Network error: ${error.message}`, true);
+      } finally {
+        showLoading(false);
+      }
+    });
+
+    // Add enter key support for textarea
+    document.getElementById('userInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        document.getElementById('goBtn').click();
+      }
+    });
+  </script>
+</body>
+</html>
